@@ -117,6 +117,37 @@ namespace WinUIEditor
 				SetLanguageIndentMode(0, { }, 0, { }, 0, { }, 0, { });
 			}
 		}
+		else if (_highlightingLanguage == L"css")
+		{
+			const auto lexer{ _createLexer("css") };
+			lexer->PropertySet("fold", "1");
+			_call->SetILexer(lexer);
+			// This list of keywords originates from SciTe (css.properties)
+			_call->SetKeyWords(0,
+				"color background-color background-image background-repeat background-attachment background-position background "
+				"font-family font-style font-variant font-weight font-size font "
+				"word-spacing letter-spacing text-decoration vertical-align text-transform text-align text-indent line-height "
+				"margin-top margin-right margin-bottom margin-left margin "
+				"padding-top padding-right padding-bottom padding-left padding "
+				"border-top-width border-right-width border-bottom-width border-left-width border-width "
+				"border-top border-right border-bottom border-left border "
+				"border-color border-style width height float clear "
+				"display white-space list-style-type list-style-image list-style-position list-style");
+			_call->SetKeyWords(1,
+				"auto none normal italic oblique small-caps bold bolder lighter "
+				"xx-small x-small small medium large x-large xx-large larger smaller "
+				"transparent repeat repeat-x repeat-y no-repeat scroll fixed "
+				"top bottom left center right justify both "
+				"underline overline line-through blink "
+				"baseline sub super text-top middle text - bottom "
+				"capitalize uppercase lowercase thin medium thick "
+				"dotted dashed solid double groove ridge inset outset "
+				"block inline list-item pre no-wrap inside outside "
+				"disc circle square decimal lower-roman upper-roman lower-alpha upper-alpha "
+				"aqua black blue fuchsia gray green lime maroon navy olive purple red silver teal white yellow");
+			SetLanguageIndentMode(0, { }, 0, { }, SCE_CSS_OPERATOR, { "{", "[", },
+				SCE_CSS_OPERATOR, { "}", "]", });
+		}
 		else if (_highlightingLanguage == L"yaml")
 		{
 			const auto lexer{ _createLexer("yaml") };
@@ -292,6 +323,53 @@ namespace WinUIEditor
 				StyleSetFore(SCE_JSON_KEYWORD, LightPlus2(Scope::ConstantLanguage));
 				StyleSetFore(SCE_JSON_LDKEYWORD, LightPlus2(Scope::KeywordControl));
 				StyleSetFore(SCE_JSON_ERROR, LightPlus2(Scope::Invalid));
+				break;
+			}
+		}
+		else if (_highlightingLanguage == L"css")
+		{
+			switch (_theme)
+			{
+			case CodeEditorTheme::Dark:
+				StyleSetFore(static_cast<int>(StylesCommon::Default), DarkPlusEditorForeground);
+				StyleClearCustom();
+
+				StyleSetFore(static_cast<int>(StylesCommon::BraceLight), DarkPlusEditorForeground);
+
+				StyleSetFore(SCE_CSS_SINGLESTRING, DarkPlus2(Scope::String));
+				StyleSetFore(SCE_CSS_DOUBLESTRING, DarkPlus2(Scope::String));
+				StyleSetFore(SCE_CSS_CLASS, DarkPlus2(Scope::EntityOtherAttribute_NameClassCss));
+				StyleSetFore(SCE_CSS_TAG, DarkPlus2(Scope::ConstantCharacterEscape));
+				StyleSetFore(SCE_CSS_COMMENT, DarkPlus2(Scope::Comment));
+				//StyleSetFore(SCE_CSS_BLOCKCOMMENT, DarkPlus2(Scope::Comment));
+				StyleSetFore(SCE_CSS_OPERATOR, DarkPlus2(Scope::KeywordOperator));
+				//StyleSetFore(SCE_CSS_URI, DarkPlus2(Scope::String));
+				//_call->StyleSetUnderline(SCE_CSS_URI, true);
+				//StyleSetFore(SCE_CSS_COMPACTIRI, DarkPlus2(Scope::String));
+				StyleSetFore(SCE_CSS_ATTRIBUTE, DarkPlus2(Scope::Keyword));
+				StyleSetFore(SCE_CSS_UNKNOWN_IDENTIFIER, DarkPlus2(Scope::Invalid));
+				StyleSetFore(SCE_CSS_UNKNOWN_PSEUDOCLASS, DarkPlus2(Scope::Invalid));
+				break;
+
+			case CodeEditorTheme::Light:
+				StyleSetFore(static_cast<int>(StylesCommon::Default), LightPlusEditorForeground);
+				StyleClearCustom();
+
+				StyleSetFore(static_cast<int>(StylesCommon::BraceLight), LightPlusEditorForeground);
+
+				StyleSetFore(SCE_CSS_SINGLESTRING, LightPlus2(Scope::String));
+				StyleSetFore(SCE_CSS_DOUBLESTRING, LightPlus2(Scope::String));
+				StyleSetFore(SCE_CSS_CLASS, LightPlus2(Scope::EntityOtherAttribute_NameClassCss));
+				StyleSetFore(SCE_CSS_TAG, LightPlus2(Scope::ConstantCharacterEscape));
+				StyleSetFore(SCE_CSS_COMMENT, LightPlus2(Scope::Comment));
+				//StyleSetFore(SCE_CSS_BLOCKCOMMENT, LightPlus2(Scope::Comment));
+				StyleSetFore(SCE_CSS_OPERATOR, LightPlus2(Scope::KeywordOperator));
+				//StyleSetFore(SCE_CSS_URI, LightPlus2(Scope::String));
+				//_call->StyleSetUnderline(SCE_CSS_URI, true);
+				//StyleSetFore(SCE_CSS_COMPACTIRI, LightPlus2(Scope::String));
+				StyleSetFore(SCE_CSS_ATTRIBUTE, LightPlus2(Scope::Keyword));
+				StyleSetFore(SCE_CSS_UNKNOWN_IDENTIFIER, LightPlus2(Scope::Invalid));
+				StyleSetFore(SCE_CSS_UNKNOWN_PSEUDOCLASS, LightPlus2(Scope::Invalid));
 				break;
 			}
 		}
