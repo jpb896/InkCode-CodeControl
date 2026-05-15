@@ -364,7 +364,7 @@ int classifyTagHTML(Sci_PositionU start, Sci_PositionU end,
 }
 
 void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end,
-                             const WordList &keywords, const WordList &keywords2, const WordClassifier &classifier, const WordClassifier &classifierServer, Accessor &styler, script_mode inScriptType) { // WinUI
+                             const WordList &keywords, const WordClassifier &classifier, const WordClassifier &classifierServer, Accessor &styler, script_mode inScriptType) {
 	const std::string s = styler.GetRange(start, end+1);
 	int chAttr = SCE_HJ_WORD;
 	const bool wordIsNumber = IsADigit(s[0]) || ((s[0] == '.') && IsADigit(s[1]));
@@ -372,8 +372,6 @@ void classifyWordHTJS(Sci_PositionU start, Sci_PositionU end,
 		chAttr = SCE_HJ_NUMBER;
 	} else if (keywords.InList(s)) {
 		chAttr = SCE_HJ_KEYWORD;
-	} else if (keywords2.InList(s)) { // WinUI
-		chAttr = 54;
 	} else {
 		const int subStyle = (inScriptType == eNonHtmlScript) ? classifier.ValueFor(s) : classifierServer.ValueFor(s);
 		if (subStyle >= 0) {
@@ -767,7 +765,6 @@ struct OptionsHTML {
 	bool foldComment = false;
 	bool foldHeredoc = false;
 	bool foldXmlAtTagOpen = false;
-	bool winuieditStyleTagBracketsAsTagEnd = false; // WinUI
 };
 
 const char * const htmlWordListDesc[] = {
@@ -846,11 +843,6 @@ struct OptionSetHTML : public OptionSet<OptionsHTML> {
 
 		DefineProperty("fold.xml.at.tag.open", &OptionsHTML::foldXmlAtTagOpen,
 			"Enable folding for XML at the start of open tag. "
-			"The default is off.");
-
-		// WinUI
-		DefineProperty("winuiedit.style.tag.brackets.as.tag.end", &OptionsHTML::winuieditStyleTagBracketsAsTagEnd,
-			"Style the <, >, and / characters in tags as SCE_H_TAGEND instead of SCE_H_TAG. "
 			"The default is off.");
 
 		DefineWordListSets(isPHPScript_ ? phpscriptWordListDesc : htmlWordListDesc);
@@ -1062,7 +1054,6 @@ class LexerHTML : public DefaultLexer {
 	WordList keywordsPy;
 	WordList keywordsPHP;
 	WordList keywordsSGML; // SGML (DTD) keywords
-	WordList keywordsJSControl; // WinUI
 	OptionsHTML options;
 	OptionSetHTML osHTML;
 	std::set<std::string> nonFoldingTags;
@@ -1178,9 +1169,6 @@ Sci_Position SCI_METHOD LexerHTML::WordListSet(int n, const char *wl) {
 		wordListN = &keywordsSGML;
 		break;
 	default:
-	// WinUI
-	case 6:
-		wordListN = &keywordsJSControl;
 		break;
 	}
 	Sci_Position firstModification = -1;
@@ -1283,7 +1271,6 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 	const bool isMako = options.isMako;
 	const bool isDjango = options.isDjango;
 	const bool allowASP = (isXml ? options.allowASPinXML : options.allowASPinHTML) && !isMako && !isDjango;
-	const bool winuieditStyleTagBracketsAsTagEnd = options.winuieditStyleTagBracketsAsTagEnd; // WinUI
 	const CharacterSet setHTMLWord(CharacterSet::setAlphaNum, ".-_:!#", true);
 	const CharacterSet setTagContinue(CharacterSet::setAlphaNum, ".-_:!#[", true);
 	const CharacterSet setAttributeContinue(CharacterSet::setAlphaNum, ".-_:!#/", true);
@@ -1495,10 +1482,6 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 				}
 				// closing tag of the script (it's a closing HTML tag anyway)
 				styler.ColourTo(i - 1, StateToPrint);
-				// WinUI
-				if (winuieditStyleTagBracketsAsTagEnd) {
-					styler.ColourTo(i + 1, SCE_H_TAGEND);
-				}
 				state = SCE_H_TAGUNKNOWN;
 				inScriptType = eHtml;
 				scriptLanguage = eScriptNone;
@@ -1798,7 +1781,7 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 			// Bounce out of any ASP mode
 			switch (state) {
 			case SCE_HJ_WORD:
-				classifyWordHTJS(styler.GetStartSegment(), i - 1, keywordsJS, keywordsJSControl, classifierJavaScript, classifierJavaScriptServer, styler, inScriptType); // WinUI
+				classifyWordHTJS(styler.GetStartSegment(), i - 1, keywordsJS, classifierJavaScript, classifierJavaScriptServer, styler, inScriptType);
 				break;
 			case SCE_HB_WORD:
 				classifyWordHTVB(styler.GetStartSegment(), i - 1, keywordsVB, classifierBasic, styler, inScriptType);
@@ -1855,13 +1838,8 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 					levelCurrent--;
 				}
 				styler.ColourTo(i - 1, StateToPrint);
-				// WinUI
-				if (chNext != '!') {
-					if (winuieditStyleTagBracketsAsTagEnd) {
-						styler.ColourTo(tagClosing ? i + 1 : i, SCE_H_TAGEND);
-					}
+				if (chNext != '!')
 					state = SCE_H_TAGUNKNOWN;
-				}
 			} else if (ch == '&') {
 				styler.ColourTo(i - 1, SCE_H_DEFAULT);
 				state = SCE_H_ENTITY;
@@ -2035,13 +2013,7 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 					eClass = SCE_H_TAG;
 				}
 				if (ch == '>') {
-					// WinUI
-					if (winuieditStyleTagBracketsAsTagEnd) {
-						styler.ColourTo(i - 1, eClass);
-						styler.ColourTo(i, SCE_H_TAGEND);
-					} else {
-						styler.ColourTo(i, eClass);
-					}
+					styler.ColourTo(i, eClass);
 					if (inScriptType == eNonHtmlScript) {
 						state = StateForScript(scriptLanguage);
 					} else {
@@ -2085,7 +2057,7 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 			if (!setAttributeContinue.Contains(ch)) {
 				isLanguageType = classifyAttribHTML(inScriptType, styler.GetStartSegment(), i - 1, keywordsHTML, classifierAttributes, styler, lastTag);
 				if (ch == '>') {
-					styler.ColourTo(i, winuieditStyleTagBracketsAsTagEnd ? SCE_H_TAGEND : SCE_H_TAG); // WinUI
+					styler.ColourTo(i, SCE_H_TAG);
 					if (inScriptType == eNonHtmlScript) {
 						state = StateForScript(scriptLanguage);
 					} else {
@@ -2111,7 +2083,7 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 		case SCE_H_OTHER:
 			if (ch == '>') {
 				styler.ColourTo(i - 1, StateToPrint);
-				styler.ColourTo(i, winuieditStyleTagBracketsAsTagEnd ? SCE_H_TAGEND : SCE_H_TAG); // WinUI
+				styler.ColourTo(i, SCE_H_TAG);
 				if (inScriptType == eNonHtmlScript) {
 					state = StateForScript(scriptLanguage);
 				} else {
@@ -2192,7 +2164,7 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 						styler.ColourTo(i - 1, StateToPrint);
 					}
 					if (ch == '>') {
-						styler.ColourTo(i, winuieditStyleTagBracketsAsTagEnd ? SCE_H_TAGEND : SCE_H_TAG); // WinUI
+						styler.ColourTo(i, SCE_H_TAG);
 						if (inScriptType == eNonHtmlScript) {
 							state = StateForScript(scriptLanguage);
 						} else {
@@ -2262,8 +2234,8 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 			break;
 		case SCE_HJ_WORD:
 			if (!IsAWordChar(ch)) {
-				classifyWordHTJS(styler.GetStartSegment(), i - 1, keywordsJS, keywordsJSControl,
-					classifierJavaScript, classifierJavaScriptServer, styler, inScriptType); // WinUI
+				classifyWordHTJS(styler.GetStartSegment(), i - 1, keywordsJS,
+					classifierJavaScript, classifierJavaScriptServer, styler, inScriptType);
 				state = SCE_HJ_DEFAULT;
 			}
 			break;
@@ -2729,8 +2701,8 @@ void SCI_METHOD LexerHTML::Lex(Sci_PositionU startPos, Sci_Position length, int 
 
 	switch (state) {
 	case SCE_HJ_WORD:
-		classifyWordHTJS(styler.GetStartSegment(), lengthDoc - 1, keywordsJS, keywordsJSControl,
-			classifierJavaScript, classifierJavaScriptServer, styler, inScriptType); // WinUI
+		classifyWordHTJS(styler.GetStartSegment(), lengthDoc - 1, keywordsJS,
+			classifierJavaScript, classifierJavaScriptServer, styler, inScriptType);
 		break;
 	case SCE_HB_WORD:
 		classifyWordHTVB(styler.GetStartSegment(), lengthDoc - 1, keywordsVB, classifierBasic, styler, inScriptType);
