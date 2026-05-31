@@ -156,6 +156,53 @@ namespace WinUIEditor
 			_call->SetKeyWords(0, "true True TRUE false False FALSE yes Yes YES no No NO null Null NULL");
 			SetLanguageIndentMode(0, { }, 0, { }, 0, { }, 0, { });
 		}
+		else if (_highlightingLanguage == L"python") 
+		{
+			const auto lexer{ _createLexer("python") };
+			lexer->PropertySet("fold", "1");
+			_call->SetILexer(lexer);
+			// This list of keywords from SciTe (python.properties)
+			_call->SetKeyWords(0,
+				"__main__ _dummy_thread _thread abc aifc argparse "
+"array ast asynchat asyncio asyncore atexit audioop "
+"base64 bdb binascii binhex bisect builtins bz2 "
+"calendar cgi cgitb chunk cmath cmd code codecs "
+"codeop collections colorsys compileall concurrent "
+"configparser contextlib copy copyreg crypt csv "
+"ctypes curses datetime dbm decimal difflib dis "
+"distutils dummy_threading email ensurepip enum "
+"errno faulthandler fcntl filecmp fileinput fnmatch "
+"formatter fpectl fractions ftplib functools gc getopt "
+"getpass gettext glob grp gzip hashlib heapq hmac "
+"html http http imaplib imghdr importlib inspect io "
+"ipaddress itertools json keyword linecache locale "
+"logging lzma macpath mailbox mailcap marshal math "
+"mimetypes mmap modulefinder msilib msvcrt "
+"multiprocessing netrc nis nntplib numbers operator "
+"os ossaudiodev parser pathlib pdb pickle "
+"pickletools pipes pkgutil platform plistlib poplib posix "
+"pprint pty pwd py_compile pyclbr queue quopri "
+"random re readline reprlib resource rlcompleter runpy "
+"sched select selectors shelve shlex shutil signal site "
+"smtpd smtplib sndhdr socket socketserver spwd "
+"sqlite3 ssl stat statistics string stringprep struct "
+"subprocess sunau symbol symtable sys sysconfig "
+"syslog tabnanny tarfile telnetlib tempfile termios "
+"textwrap threading time timeit tkinter token "
+"tokenize trace traceback tracemalloc tty turtle "
+"types unicodedata unittest urllib uu uuid venv warnings "
+"wave weakref webbrowser winreg winsound wsgiref "
+"xdrlib xml xmlrpc zipfile zipimport zlib");
+			_call->SetKeyWords(1,
+				"False None True and as assert break case class continue "
+"def del elif else except finally for from global if import in is lambda "
+"match nonlocal not or pass raise return try while with yield");
+			SetLanguageIndentMode(
+				SCE_P_WORD2, { "class","def", "elif", "else", "except", "finally", "for", "if", "try", "while", "with"},
+				0, {},
+				SCE_P_OPERATOR, { "{", },
+				SCE_P_OPERATOR, { "}", });
+		}
 		else if (_highlightingLanguage == L"plaintext")
 		{
 			_call->SetILexer(_createLexer("null"));
@@ -509,6 +556,85 @@ namespace WinUIEditor
 				StyleSetFore(SCE_YAML_TEXT, LightPlus2(Scope::String));
 				StyleSetFore(SCE_YAML_ERROR, LightPlus2(Scope::Invalid));
 				StyleSetFore(SCE_YAML_OPERATOR, LightPlusEditorForeground);
+				break;
+			}
+		}
+		else if (_highlightingLanguage == L"python") 
+		{
+			switch (_theme)
+			{
+			case CodeEditorTheme::Dark:
+				StyleSetFore(static_cast<int>(StylesCommon::Default), DarkPlusEditorForeground);
+				StyleClearCustom();
+
+				StyleSetFore(static_cast<int>(StylesCommon::BraceLight), DarkPlusEditorForeground);
+
+				//StyleSetFore(SCE_C_COMMENT, DarkPlus2(Scope::Comment));
+				StyleSetFore(SCE_P_COMMENTLINE, DarkPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_COMMENTDOC, DarkPlus2(Scope::Comment));
+				StyleSetFore(SCE_P_NUMBER, DarkPlus2(Scope::ConstantNumeric));
+				StyleSetFore(SCE_P_WORD, DarkPlus2(Scope::Keyword));
+				StyleSetFore(SCE_P_STRING, DarkPlus2(Scope::String));
+				StyleSetFore(SCE_P_CHARACTER, DarkPlus2(Scope::String));
+				//StyleSetFore(SCE_C_UUID, DarkPlus2(Scope::ConstantNumeric));
+				//StyleSetFore(SCE_C_PREPROCESSOR, DarkPlus2(Scope::MetaPreprocessor));
+				StyleSetFore(SCE_P_OPERATOR, DarkPlus2(Scope::KeywordOperator));
+				StyleSetFore(SCE_P_IDENTIFIER, DarkPlus2(Scope::Variable));
+				StyleSetFore(SCE_P_STRINGEOL, DarkPlus2(Scope::String));
+				//StyleSetFore(SCE_C_VERBATIM, DarkPlus2(Scope::String));
+				//StyleSetFore(SCE_C_REGEX, DarkPlus2(Scope::StringRegexp));
+				StyleSetFore(SCE_P_COMMENTBLOCK, DarkPlus2(Scope::Comment));
+				StyleSetFore(SCE_P_WORD2, DarkPlus2(Scope::KeywordControl));
+				//StyleSetFore(SCE_C_COMMENTDOCKEYWORD, DarkPlus2(Scope::Keyword));
+				//StyleSetFore(SCE_C_COMMENTDOCKEYWORDERROR, DarkPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_GLOBALCLASS, DarkPlus2(Scope::EntityNameType));
+				StyleSetFore(SCE_P_TRIPLEDOUBLE, DarkPlus2(Scope::String));
+				StyleSetFore(SCE_P_TRIPLE, DarkPlus2(Scope::String));
+				//StyleSetFore(SCE_C_HASHQUOTEDSTRING, DarkPlus2(Scope::String));
+				//StyleSetFore(SCE_C_PREPROCESSORCOMMENT, DarkPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_PREPROCESSORCOMMENTDOC, DarkPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_USERLITERAL, DarkPlus2(Scope::KeywordOtherUnit));
+				//StyleSetFore(SCE_C_TASKMARKER, DarkPlus2(Scope::Comment));
+				//_call->StyleSetItalic(SCE_C_TASKMARKER, true);
+				//_call->StyleSetBold(SCE_C_TASKMARKER, true);
+				StyleSetFore(SCE_P_ATTRIBUTE, DarkPlus2(Scope::Keyword));
+				break;
+
+			case CodeEditorTheme::Light:
+				StyleSetFore(static_cast<int>(StylesCommon::Default), LightPlusEditorForeground);
+				StyleClearCustom();
+
+				StyleSetFore(static_cast<int>(StylesCommon::BraceLight), LightPlusEditorForeground);
+
+				//StyleSetFore(SCE_C_COMMENT, LightPlus2(Scope::Comment));
+				StyleSetFore(SCE_P_COMMENTLINE, LightPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_COMMENTDOC, LightPlus2(Scope::Comment));
+				StyleSetFore(SCE_P_NUMBER, LightPlus2(Scope::ConstantNumeric));
+				StyleSetFore(SCE_P_WORD, LightPlus2(Scope::Keyword));
+				StyleSetFore(SCE_P_STRING, LightPlus2(Scope::String));
+				StyleSetFore(SCE_P_CHARACTER, LightPlus2(Scope::String));
+				//StyleSetFore(SCE_C_UUID, LightPlus2(Scope::ConstantNumeric));
+				//StyleSetFore(SCE_C_PREPROCESSOR, LightPlus2(Scope::MetaPreprocessor));
+				StyleSetFore(SCE_P_OPERATOR, LightPlus2(Scope::KeywordOperator));
+				StyleSetFore(SCE_P_IDENTIFIER, LightPlus2(Scope::Variable));
+				StyleSetFore(SCE_P_STRINGEOL, LightPlus2(Scope::String));
+				//StyleSetFore(SCE_C_VERBATIM, LightPlus2(Scope::String));
+				//StyleSetFore(SCE_C_REGEX, LightPlus2(Scope::StringRegexp));
+				StyleSetFore(SCE_P_COMMENTBLOCK, LightPlus2(Scope::Comment));
+				StyleSetFore(SCE_P_WORD2, LightPlus2(Scope::KeywordControl));
+				//StyleSetFore(SCE_C_COMMENTDOCKEYWORD, LightPlus2(Scope::Keyword));
+				//StyleSetFore(SCE_C_COMMENTDOCKEYWORDERROR, LightPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_GLOBALCLASS, LightPlus2(Scope::EntityNameType));
+				StyleSetFore(SCE_P_TRIPLEDOUBLE, LightPlus2(Scope::String));
+				StyleSetFore(SCE_P_TRIPLE, LightPlus2(Scope::String));
+				//StyleSetFore(SCE_C_HASHQUOTEDSTRING, LightPlus2(Scope::String));
+				//StyleSetFore(SCE_C_PREPROCESSORCOMMENT, LightPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_PREPROCESSORCOMMENTDOC, LightPlus2(Scope::Comment));
+				//StyleSetFore(SCE_C_USERLITERAL, LightPlus2(Scope::KeywordOtherUnit));
+				//StyleSetFore(SCE_C_TASKMARKER, LightPlus2(Scope::Comment));
+				//_call->StyleSetItalic(SCE_C_TASKMARKER, true);
+				//_call->StyleSetBold(SCE_C_TASKMARKER, true);
+				StyleSetFore(SCE_P_ATTRIBUTE, LightPlus2(Scope::Keyword));
 				break;
 			}
 		}
