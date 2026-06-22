@@ -30,7 +30,6 @@
     <ClCompile Include="CodeEditorHandler.cpp" />
     <ClCompile Include="CodeEditorHandler.SciEdit.cpp" />
     <ClCompile Include="CodeEditorHandler.SyntaxHighlighting.cpp" />
-    <ClCompile Include="DummyPage.cpp" />
     <ClCompile Include="EditorBaseControl.cpp" />
     <ClCompile Include="EditorBaseControlAutomationPeer.cpp" />
     <ClCompile Include="EditorWrapper.cpp" />
@@ -571,7 +570,6 @@
     <ClInclude Include="CodeEditorHandler.SciEdit.h" />
     <ClInclude Include="ControlIncludes.h" />
     <ClInclude Include="DarkPlus.h" />
-    <ClInclude Include="DummyPage.h" />
     <ClInclude Include="EditorBaseControl.h" />
     <ClInclude Include="EditorBaseControlAutomationPeer.h" />
     <ClInclude Include="EditorWrapper.h" />
@@ -801,16 +799,11 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Themes\Generic.xaml" />
-    <Page Include="DummyPage.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="AutocompletionControl.idl" />
     <Midl Include="CallTipControl.idl" />
     <Midl Include="CodeEditorControl.idl" />
-    <Midl Include="DummyPage.idl" />
     <Midl Include="EditorBaseControl.idl" />
     <Midl Include="EditorBaseControlAutomationPeer.idl" />
     <Midl Include="EditorWrapper.idl" />
