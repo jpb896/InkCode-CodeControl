@@ -391,7 +391,6 @@ namespace WinUIEditor
 		_call->SetScrollWidthTracking(true);
 		_call->SetYCaretPolicy(CaretPolicy::Slop | CaretPolicy::Strict | CaretPolicy::Even, 1);
 		_call->SetVisiblePolicy(VisiblePolicy::Slop, 0);
-		_call->SetHScrollBar(true);
 		_call->SetEndAtLastLine(false);
 		_call->CallTipUseStyle(0);
 		for (int i{ static_cast<int>(StylesCommon::Default) }; i <= static_cast<int>(StylesCommon::LastPredefined); i++)

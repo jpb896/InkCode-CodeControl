@@ -27,6 +27,8 @@ namespace WinUIEditor
 		void VerticalScrollBarMaximum(double value);
 		void HorizontalScrollBarViewportSize(double value);
 		void VerticalScrollBarViewportSize(double value);
+		void HorizontalScrollBarVisible(bool value);
+		void VerticalScrollBarVisible(bool value);
 		double HorizontalScrollBarValue();
 		double VerticalScrollBarValue();
 		double HorizontalScrollBarMinimum();

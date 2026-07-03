@@ -2052,6 +2052,7 @@ namespace Scintilla::Internal {
 				_mainWrapper->HorizontalScrollBarViewportSize(nPage);
 				_mainWrapper->HorizontalScrollBarMinimum(nMin);
 				_mainWrapper->HorizontalScrollBarMaximum(max);
+				_mainWrapper->HorizontalScrollBarVisible(max != 0);
 				return true;
 			}
 		}
@@ -2062,6 +2063,7 @@ namespace Scintilla::Internal {
 				_mainWrapper->VerticalScrollBarViewportSize(nPage);
 				_mainWrapper->VerticalScrollBarMinimum(nMin);
 				_mainWrapper->VerticalScrollBarMaximum(max);
+				_mainWrapper->VerticalScrollBarVisible(max != 0);
 				return true;
 			}
 		}
