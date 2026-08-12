@@ -1289,6 +1289,7 @@ namespace WinUIEditor
 		Ok = 0,
 		Failure = 1,
 		BadAlloc = 2,
+		OutsideDocument = 3,
 		WarnStart = 1000,
 		RegEx = 1001,
 	};
@@ -2815,6 +2816,7 @@ namespace WinUIEditor
 		AsmStringeol = 13,
 		AsmExtinstruction = 14,
 		AsmCommentdirective = 15,
+		AsmStringbackquote = 16,
 	};
 
 	enum As
@@ -2835,6 +2837,7 @@ namespace WinUIEditor
 		AsmStringeol = 13,
 		AsmExtinstruction = 14,
 		AsmCommentdirective = 15,
+		AsmStringbackquote = 16,
 	};
 
 	enum Fortran
@@ -3818,6 +3821,7 @@ namespace WinUIEditor
 		PasCharacter = 12,
 		PasOperator = 13,
 		PasAsm = 14,
+		PasMultilinestring = 15,
 	};
 
 	enum SORCUS

@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
 	<metadata>
 		<id>WinUIEdit.Uwp</id>
-		<version>0.0.4-prerelease</version>
+		<version>0.0.5-prerelease</version>
 		<authors>Breece Walker</authors>
 		<description>Code editor control for UWP based on Scintilla</description>
 		<projectUrl>https://github.com/BreeceW/WinUIEdit</projectUrl>
 		<readme>README.md</readme>
-		<copyright>Copyright (c) Breece Walker 2025</copyright>
+		<copyright>Copyright (c) Breece Walker 2026</copyright>
 		<license type="file">LICENSE</license>
 		<tags>winui code editor text edit scintilla uwp winrt winuiedit winuieditor</tags>
 		<repository type="git" url="https://github.com/BreeceW/WinUIEdit.git" />

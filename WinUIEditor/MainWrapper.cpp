@@ -111,6 +111,16 @@ namespace WinUIEditor
 		_verticalScrollBar.ViewportSize(value);
 	}
 
+	void MainWrapper::HorizontalScrollBarVisible(bool value)
+	{
+		_horizontalScrollBar.Visibility(value ? winrt::DUX::Visibility::Visible : winrt::DUX::Visibility::Collapsed);
+	}
+
+	void MainWrapper::VerticalScrollBarVisible(bool value)
+	{
+		_verticalScrollBar.Visibility(value ? winrt::DUX::Visibility::Visible : winrt::DUX::Visibility::Collapsed);
+	}
+
 	double MainWrapper::HorizontalScrollBarValue()
 	{
 		return _horizontalScrollBar.Value();
