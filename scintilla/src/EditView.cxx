@@ -67,6 +67,7 @@
 #include "MarginView.h"
 #include "EditView.h"
 #include "ElapsedPeriod.h"
+#include "RunThreads.h"
 
 using namespace Scintilla;
 using namespace Scintilla::Internal;
@@ -495,25 +496,13 @@ void EditView::LayoutLine(const EditModel &model, Surface *surface, const ViewSt
 			std::atomic<uint32_t> nextIndex = 0;
 
 			const bool textUnicode = CpUtf8 == model.pdoc->dbcsCodePage;
-			const bool multiThreaded = threads > 1;
-			const bool multiThreadedContext = multiThreaded || callerMultiThreaded;
+			const bool multiThreadedContext = (threads > 1) || callerMultiThreaded;
 			IPositionCache *pCache = posCache.get();
 
 			// If only 1 thread needed then use the main thread, else spin up multiple
-			const std::launch policy = (multiThreaded) ? std::launch::async : std::launch::deferred;
-
-			std::vector<std::future<void>> futures;
-			for (size_t th = 0; th < threads; th++) {
-				// Find relative positions of everything except for tabs
-				std::future<void> fut = std::async(policy,
-					[pCache, surface, &vstyle, &ll, &segments, &nextIndex, textUnicode, multiThreadedContext]() {
-					LayoutSegments(pCache, surface, vstyle, ll, segments, nextIndex, textUnicode, multiThreadedContext);
+			RunThreads(threads, [pCache, surface, &vstyle, ll, &segments, &nextIndex, textUnicode, multiThreadedContext]() {
+				LayoutSegments(pCache, surface, vstyle, ll, segments, nextIndex, textUnicode, multiThreadedContext);
 				});
-				futures.push_back(std::move(fut));
-			}
-			for (const std::future<void> &f : futures) {
-				f.wait();
-			}
 		}
 
 		// Accumulate absolute positions from relative positions within segments and expand tabs
@@ -807,7 +796,7 @@ Sci::Position EditView::StartEndDisplayLine(Surface *surface, const EditModel &m
 		const Sci::Position posLineStart = model.pdoc->LineStart(line);
 		LayoutLine(model, surface, vs, ll.get(), model.wrapWidth);
 		const Sci::Position posInLine = pos - posLineStart;
-		if (posInLine <= ll->maxLineLength) {
+		if (posInLine <= ll->numCharsInLine) {
 			for (int subLine = 0; subLine < ll->lines; subLine++) {
 				if ((posInLine >= ll->LineStart(subLine)) &&
 				    (posInLine <= ll->LineStart(subLine + 1)) &&
@@ -946,7 +935,7 @@ void FillLineRemainder(Surface *surface, const EditModel &model, const ViewStyle
 			base = vsDraw.styles[ll->LastStyle()].back;
 		}
 	}
-	surface->FillRectangleAligned(rcArea, Fill(base)); // WinUI
+	surface->FillRectangleAligned(rcArea, Fill(base.Opaque()));
 	if (drawEOLSelection && (vsDraw.selection.layer != Layer::Base)) {
 		// This may be translucent
 		surface->FillRectangleAligned(rcArea, selectionBack);
@@ -1091,7 +1080,7 @@ void EditView::DrawEOL(Surface *surface, const EditModel &model, const ViewStyle
 				blobText = textBack.MixedWith(selectionBack, selectionBack.GetAlphaComponent());
 			}
 			if (FlagSet(appearance, RepresentationAppearance::Blob)) {
-				DrawTextBlob(surface, vsDraw, rcBlob, ctrlChar, blobText.Opaque(), textFore, phasesDraw == PhasesDraw::One); // WinUI
+				DrawTextBlob(surface, vsDraw, rcBlob, ctrlChar, blobText, textFore, phasesDraw == PhasesDraw::One);
 			} else {
 				surface->DrawTextTransparentUTF8(rcBlob, vsDraw.styles[StyleControlChar].font.get(),
 					rcBlob.top + vsDraw.maxAscent, ctrlChar, textFore);
@@ -1114,7 +1103,7 @@ void EditView::DrawEOL(Surface *surface, const EditModel &model, const ViewStyle
 	} else if (const Style &styleLast = vsDraw.styles[ll->LastStyle()]; styleLast.eolFilled) {
 		base = styleLast.back;
 	}
-	surface->FillRectangleAligned(rcEOLIsSelected, Fill(base)); // WinUI
+	surface->FillRectangleAligned(rcEOLIsSelected, Fill(base.Opaque()));
 	if (drawEOLSelection && (vsDraw.selection.layer != Layer::Base)) {
 		surface->FillRectangleAligned(rcEOLIsSelected, selectionBack);
 	}
@@ -2233,7 +2222,7 @@ void EditView::DrawForeground(Surface *surface, const EditModel &model, const Vi
 						}
 						if (FlagSet(ts.representation->appearance, RepresentationAppearance::Blob)) {
 							DrawTextBlob(surface, vsDraw, rcSegment, ts.representation->stringRep,
-								textBack.Opaque(), textFore, phasesDraw == PhasesDraw::One); // WinUI
+								textBack, textFore, phasesDraw == PhasesDraw::One);
 						} else {
 							surface->DrawTextTransparentUTF8(rcSegment, vsDraw.styles[StyleControlChar].font.get(),
 								ybase, ts.representation->stringRep, textFore);
