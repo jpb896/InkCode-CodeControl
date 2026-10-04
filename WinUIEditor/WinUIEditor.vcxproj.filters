@@ -799,6 +799,7 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Themes\Generic.xaml" />
+    <Page Include="DummyPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="AutocompletionControl.idl" />
@@ -808,5 +809,9 @@
     <Midl Include="EditorBaseControlAutomationPeer.idl" />
     <Midl Include="EditorWrapper.idl" />
     <Midl Include="IEditorAccess.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
   </ItemGroup>
 </Project>
